@@ -1,0 +1,127 @@
+---
+  title: "R-ASSIGNMENT-2"
+author: "s.sanjay 29"
+date: "15/11/2022"
+output: html_document
+---
+  
+  ### ASSIGNMENT QUESTIONS AND SOLUTIONS
+  
+  library(dplyr)
+
+{r}
+
+1.sort flights to find fastest flights
+
+#ANSWER :
+
+{r}
+arrange(flights,arr_time)
+
+
+2.Compare dep_time, sched_dep_time and dep_delay.How do you except those three numbers to be related?
+  
+  #ANSWER :
+  
+  {r}
+select(flights,dep_time,sched_dep_time,dep_delay)
+
+
+1.  The scheduled departure time of the flights are the actual depature time of the flights.
+2.  But some flights are depatured earlier or later than scheduled depature time.
+3.  The Depature Delay of the flights are indicates earlier departure as NEGATIVE NUMBERS and later depature as POSITIVE NUMBERS in hours.
+
+
+3.Brainstorm at least 5 different ways to assess the typical delay characteristics of a group of flights. Consider the following scenarios:
+  
+  a. A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time
+
+{r}
+flights %>%
+  group_by(flight) %>%
+  summarize(n = n(),
+            early_15 = sum(arr_delay <= -15, na.rm = TRUE) / n(),
+            late_15 = sum(arr_delay >= 15, na.rm = TRUE) / n()) %>%
+  
+  filter(early_15 == 0.5,
+         late_15 == 0.5)
+
+
+
+b. A flight is always 10 minutes late.
+
+{r}
+flights %>% 
+  group_by(flight) %>% 
+  summarise(n = n(),
+            late = n_distinct(arr_delay, na.rm = TRUE) / n(), 
+            always_10 = mean(arr_delay, na.rm = TRUE)) %>%
+  
+  filter(late == 1 & always_10 == 10)
+
+
+
+c. A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+
+{r}
+flights %>% 
+  group_by(flight) %>% 
+  summarise(n = n(),
+            early_30 = sum(arr_delay <= -30, na.rm = TRUE) / n(),
+            late_30 = sum(arr_delay >= 30, na.rm = TRUE) / n()) %>%
+  
+  filter(early_30 == 0.5 & late_30 == 0.5)
+
+
+d. 99% of the time a flight is on time. 1% of the time it's 2 hours late
+
+{r}
+flights %>% 
+  group_by(flight) %>% 
+  summarise(n = n(),
+            early.prop = sum(arr_delay <= 0, na.rm = TRUE) / n(),
+            late.prop = sum(arr_delay >= 120, na.rm = TRUE) / n()) %>%
+  
+  filter(early.prop == 0.99 & late.prop == 0.01 )
+
+
+
+#ANSWER :
+
+             According to the scenarios arr_delay is more important than dep_delay.
+             
+
+4.Which plane (tailnum) has the worst on-time record?
+
+#ANSWER :
+
+{r}
+arrange(flights,desc(dep_delay),desc(arr_delay))
+
+
+5.Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.
+
+#ANSWER :
+
+#1.
+
+{r}
+select(flights,dep_time,dep_delay,arr_time,arr_delay)
+
+
+#2.
+
+{r}
+select(flights,4,6,7,9)
+
+
+#3.
+
+{r}
+select(flights,starts_with("dep_"),starts_with("arr_"))
+
+
+#4.
+
+{r}
+select(flights,ends_with("_time"),ends_with("_delay"),-c(sched_arr_time,sched_dep_time,air_time))
